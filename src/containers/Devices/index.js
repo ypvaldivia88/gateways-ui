@@ -41,10 +41,10 @@ class Devices extends Component {
   }
 
   componentDidMount() {
-    this.loadDatatable();
+    this.loadDevices();
   }
 
-  loadDatatable = () => {
+  loadDevices = () => {
     this.setState({ loading: true });
     Axios.get('/devices')
       .then((res) => {
@@ -66,7 +66,8 @@ class Devices extends Component {
   deleteDevice = (id) => {
     Axios.delete(`/devices/${id}`)
       .then((res) => {
-        this.loadDatatable();
+        alert(res.data.message);
+        this.loadDevices();
       })
       .catch((err) => {
         alert(err.response.data.message);
@@ -115,15 +116,9 @@ class Devices extends Component {
 
   render() {
     var boton = this.state.device._id ? (
-      <DeviceEdit
-        loadDatatable={this.loadDatatable}
-        device={this.state.device}
-      />
+      <DeviceEdit loadDevices={this.loadDevices} device={this.state.device} />
     ) : (
-      <DeviceForm
-        loadDatatable={this.loadDatatable}
-        device={this.state.device}
-      />
+      <DeviceForm loadDevices={this.loadDevices} device={this.state.device} />
     );
 
     const { classes } = this.props;

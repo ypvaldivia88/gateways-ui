@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import Axios from 'axios';
 import {
   Button,
   Switch,
@@ -9,8 +9,11 @@ import {
   DialogTitle,
   DialogContent,
   Dialog,
+  Select,
+  InputLabel,
+  MenuItem,
+  FormControl,
 } from '@material-ui/core';
-import axios from 'axios';
 
 class DeviceNew extends Component {
   constructor(props) {
@@ -19,10 +22,30 @@ class DeviceNew extends Component {
       uid: '',
       vendor: '',
       status: false,
+      gateway: '',
       open: false,
+      gateways: [],
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    Axios.get('/gateways')
+      .then((res) => {
+        let gatewaysFromApi = res.data.map((gate) => {
+          return {
+            value: gate._id,
+            display: gate.serial + ' - ' + gate.name,
+          };
+        });
+        this.setState({
+          gateways: gatewaysFromApi,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   handleChange(e) {
@@ -35,11 +58,12 @@ class DeviceNew extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { uid, vendor, status } = this.state;
+    const { uid, vendor, status, gateway } = this.state;
     const device = {
       uid: uid,
       vendor: vendor,
       status: status ? 'online' : 'offline',
+      gateway: gateway,
     };
 
     const config = {
@@ -47,10 +71,9 @@ class DeviceNew extends Component {
         'Content-Type': 'application/json',
       },
     };
-    axios
-      .post('/devices', device, config)
+    Axios.post('/devices', device, config)
       .then((result) => {
-        this.props.loadDatatable();
+        this.props.loadDevices();
         this.setState({ open: false });
       })
       .catch((err) => {
@@ -66,14 +89,29 @@ class DeviceNew extends Component {
     this.setState({ open: false });
   };
 
+  /* <MenuItem key={gate.value} value={gate.value}>
+      {gate.display}
+    </MenuItem> */
   render() {
+    var selectGateway = (
+      <Select
+        labelId='gateway'
+        id='gateway'
+        name='gateway'
+        value={this.state.gateway}
+        onChange={this.handleChange}
+      >
+        {this.state.gateways.map(function (gate) {
+          return <MenuItem value={gate.value}>{gate.display}</MenuItem>;
+        })}
+      </Select>
+    );
     return (
       <div>
         <Button
           variant='outlined'
           color='primary'
           onClick={this.handleClickOpen}
-          m={2}
         >
           New Device
         </Button>
@@ -99,7 +137,7 @@ class DeviceNew extends Component {
               margin='dense'
               id='vendor'
               name='vendor'
-              label='Identifier'
+              label='Vendor'
               type='text'
               fullWidth
               value={this.state.vendor}
@@ -117,6 +155,10 @@ class DeviceNew extends Component {
               label='Is online?'
               labelPlacement='end'
             />
+            <FormControl fullWidth>
+              <InputLabel id='gateway'>Gateway</InputLabel>
+              {selectGateway}
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button

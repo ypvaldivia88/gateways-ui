@@ -43,10 +43,10 @@ class Gateways extends Component {
   }
 
   componentDidMount() {
-    this.loadDatatable();
+    this.loadGateways();
   }
 
-  loadDatatable = () => {
+  loadGateways = () => {
     this.setState({ loading: true });
     Axios.get('/gateways')
       .then((res) => {
@@ -68,7 +68,8 @@ class Gateways extends Component {
   deleteGateway = (id) => {
     Axios.delete(`/gateways/${id}`)
       .then((res) => {
-        this.loadDatatable();
+        alert(res.data.message);
+        this.loadGateways();
       })
       .catch((err) => {
         alert(err.response.data.message);
@@ -118,12 +119,12 @@ class Gateways extends Component {
   render() {
     var boton = this.state.gateway._id ? (
       <GatewayEdit
-        loadDatatable={this.loadDatatable}
+        loadGateways={this.loadGateways}
         gateway={this.state.gateway}
       />
     ) : (
       <GatewayForm
-        loadDatatable={this.loadDatatable}
+        loadGateways={this.loadGateways}
         gateway={this.state.gateway}
       />
     );

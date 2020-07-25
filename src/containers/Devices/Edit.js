@@ -21,6 +21,7 @@ class DeviceEdit extends Component {
       vendor: props.device.vendor,
       status: props.device.status,
       open: false,
+      gateways: props.gateways,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -51,7 +52,7 @@ class DeviceEdit extends Component {
     axios
       .put(`/devices/${_id}`, device, config)
       .then((result) => {
-        this.props.loadDatatable();
+        this.props.loadDevices();
         this.setState({ open: false });
       })
       .catch((err) => {

@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 
 import {
   Button,
-  Switch,
-  FormControlLabel,
   DialogActions,
   TextField,
   DialogTitle,
@@ -17,9 +15,10 @@ class GatewayEdit extends Component {
     super(props);
     this.state = {
       _id: props.gateway._id,
-      uid: props.gateway.uid,
-      vendor: props.gateway.vendor,
-      status: props.gateway.status,
+      serial: props.gateway.serial,
+      name: props.gateway.name,
+      ipv4: props.gateway.ipv4,
+      description: props.gateway.description,
       open: false,
     };
     this.handleChange = this.handleChange.bind(this);
@@ -28,7 +27,6 @@ class GatewayEdit extends Component {
 
   handleChange(e) {
     let { value, name } = e.target;
-    if (name === 'status') value = e.target.checked;
     this.setState({
       [name]: value,
     });
@@ -36,11 +34,12 @@ class GatewayEdit extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { _id, uid, vendor, status } = this.state;
+    const { _id, serial, name, ipv4, description } = this.state;
     const gateway = {
-      uid: uid,
-      vendor: vendor,
-      status: status ? 'online' : 'offline',
+      serial: serial,
+      name: name,
+      ipv4: ipv4,
+      description: description,
     };
 
     const config = {
@@ -51,7 +50,7 @@ class GatewayEdit extends Component {
     axios
       .put(`/gateways/${_id}`, gateway, config)
       .then((result) => {
-        this.props.loadDatatable();
+        this.props.loadGateways();
         this.setState({ open: false });
       })
       .catch((err) => {
@@ -99,36 +98,45 @@ class GatewayEdit extends Component {
             <TextField
               autoFocus
               margin='dense'
-              id='uid'
-              name='uid'
-              label='UID'
+              id='serial'
+              name='serial'
+              label='Serial'
               type='text'
               fullWidth
-              value={this.state.uid}
+              value={this.state.serial}
               onChange={this.handleChange}
             />
             <TextField
-              autoFocus
               margin='dense'
-              id='vendor'
-              name='vendor'
-              label='Identifier'
+              id='name'
+              name='name'
+              label='Name'
               type='text'
               fullWidth
-              value={this.state.vendor}
+              value={this.state.name}
               onChange={this.handleChange}
             />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={this.state.status}
-                  onChange={this.handleChange}
-                  id='status'
-                  name='status'
-                />
-              }
-              label='Is online?'
-              labelPlacement='end'
+            <TextField
+              margin='dense'
+              id='ipv4'
+              name='ipv4'
+              label='IPv4'
+              type='text'
+              fullWidth
+              value={this.state.ipv4}
+              onChange={this.handleChange}
+            />
+            <TextField
+              margin='dense'
+              id='description'
+              name='description'
+              label='Description'
+              type='text'
+              fullWidth
+              multiline
+              rows={3}
+              value={this.state.description}
+              onChange={this.handleChange}
             />
           </DialogContent>
           <DialogActions>

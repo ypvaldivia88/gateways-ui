@@ -2,14 +2,11 @@ import React, { Component } from 'react';
 
 import {
   Button,
-  Switch,
-  FormControlLabel,
   DialogActions,
   TextField,
   DialogTitle,
   DialogContent,
   Dialog,
-  TextareaAutosize,
 } from '@material-ui/core';
 import axios from 'axios';
 
@@ -52,7 +49,7 @@ class GatewayNew extends Component {
     axios
       .post('/gateways', gateway, config)
       .then((result) => {
-        this.props.loadDatatable();
+        this.props.loadGateways();
         this.setState({ open: false });
       })
       .catch((err) => {
