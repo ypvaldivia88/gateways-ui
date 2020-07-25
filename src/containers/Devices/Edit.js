@@ -9,8 +9,12 @@ import {
   DialogTitle,
   DialogContent,
   Dialog,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@material-ui/core';
-import axios from 'axios';
+import Axios from 'axios';
 
 class DeviceEdit extends Component {
   constructor(props) {
@@ -20,11 +24,30 @@ class DeviceEdit extends Component {
       uid: props.device.uid,
       vendor: props.device.vendor,
       status: props.device.status,
+      gateway: props.gateway,
+      gateways: [],
       open: false,
-      gateways: props.gateways,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    Axios.get('/gateways')
+      .then((res) => {
+        let gatewaysFromApi = res.data.map((gate) => {
+          return {
+            value: gate._id,
+            display: gate.serial + ' - ' + gate.name,
+          };
+        });
+        this.setState({
+          gateways: gatewaysFromApi,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   handleChange(e) {
@@ -37,11 +60,12 @@ class DeviceEdit extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { _id, uid, vendor, status } = this.state;
+    const { _id, uid, vendor, status, gateway } = this.state;
     const device = {
       uid: uid,
       vendor: vendor,
       status: status ? 'online' : 'offline',
+      gateway: gateway,
     };
 
     const config = {
@@ -49,8 +73,7 @@ class DeviceEdit extends Component {
         'Content-Type': 'application/json',
       },
     };
-    axios
-      .put(`/devices/${_id}`, device, config)
+    Axios.put(`/devices/${_id}`, device, config)
       .then((result) => {
         this.props.loadDevices();
         this.setState({ open: false });
@@ -69,6 +92,19 @@ class DeviceEdit extends Component {
   };
 
   render() {
+    var selectGateway = (
+      <Select
+        labelId='gateway'
+        id='gateway'
+        name='gateway'
+        value={this.state.gateway}
+        onChange={this.handleChange}
+      >
+        {this.state.gateways.map(function (gate) {
+          return <MenuItem value={gate.value}>{gate.display}</MenuItem>;
+        })}
+      </Select>
+    );
     return (
       <div>
         <Button
@@ -129,6 +165,22 @@ class DeviceEdit extends Component {
               label='Is online?'
               labelPlacement='end'
             />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={this.state.status}
+                  onChange={this.handleChange}
+                  id='status'
+                  name='status'
+                />
+              }
+              label='Is online?'
+              labelPlacement='end'
+            />
+            <FormControl fullWidth>
+              <InputLabel id='gateway'>Gateway</InputLabel>
+              {selectGateway}
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button

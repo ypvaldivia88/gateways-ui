@@ -89,9 +89,6 @@ class DeviceNew extends Component {
     this.setState({ open: false });
   };
 
-  /* <MenuItem key={gate.value} value={gate.value}>
-      {gate.display}
-    </MenuItem> */
   render() {
     var selectGateway = (
       <Select

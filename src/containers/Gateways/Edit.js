@@ -7,6 +7,10 @@ import {
   DialogTitle,
   DialogContent,
   Dialog,
+  List,
+  ListItem,
+  ListItemText,
+  ListSubheader,
 } from '@material-ui/core';
 import axios from 'axios';
 
@@ -19,6 +23,7 @@ class GatewayEdit extends Component {
       name: props.gateway.name,
       ipv4: props.gateway.ipv4,
       description: props.gateway.description,
+      devices: props.gateway.devices,
       open: false,
     };
     this.handleChange = this.handleChange.bind(this);
@@ -34,12 +39,13 @@ class GatewayEdit extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { _id, serial, name, ipv4, description } = this.state;
+    const { _id, serial, name, ipv4, description, devices } = this.state;
     const gateway = {
       serial: serial,
       name: name,
       ipv4: ipv4,
       description: description,
+      devices: devices,
     };
 
     const config = {
@@ -67,6 +73,15 @@ class GatewayEdit extends Component {
   };
 
   render() {
+    var devicesList = this.state.devices.map(function (device) {
+      return (
+        <ListItem button>
+          <ListItemText primary={device.uid} />
+          <ListItemText primary={device.vendor} />
+          <ListItemText primary={device.status} />
+        </ListItem>
+      );
+    });
     return (
       <div>
         <Button
@@ -138,6 +153,22 @@ class GatewayEdit extends Component {
               value={this.state.description}
               onChange={this.handleChange}
             />
+            <List
+              component='nav'
+              aria-label='devices list'
+              subheader={
+                <ListSubheader component='div' id='devices-list-subheader'>
+                  Linked Devices
+                </ListSubheader>
+              }
+            >
+              <ListItem button>
+                <ListItemText fontWeight='fontWeightBold' primary='UID' />
+                <ListItemText fontWeight='fontWeightBold' primary='Vendor' />
+                <ListItemText fontWeight='fontWeightBold' primary='Status' />
+              </ListItem>
+              {devicesList}
+            </List>
           </DialogContent>
           <DialogActions>
             <Button
